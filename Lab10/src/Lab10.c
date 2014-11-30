@@ -26,6 +26,7 @@ int main(void) {
 	Queue *q;
 	ITEM *item;
 
+	// Fiz alteracao
 
 //	scanf ("%d", &numOfElements);
 
