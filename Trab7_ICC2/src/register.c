@@ -7,7 +7,7 @@
 
 #include "metadata.h"
 #include "register.h"
-#include "key.h"
+#include "index.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -107,6 +107,23 @@ reg_t scanRegister(metadata_t metadata, char *line) {
 reg_t fscanRegister(FILE *registerFile, int position) {
 	//TODO
 }
+
+void printRegister (FILE* arq, metadata_t metadata, int offset) {
+	metadataField_t *aux;
+
+	fseek (arq, offset, SEEK_SET);
+	fread (stdout, metadata.metadataKey.sizeOfKey, 1, arq);
+	printf ("\n");
+
+	aux = metadata.head_metadataField;
+	while (aux->nextField != NULL) {
+		aux = aux->nextField;
+		fread (stdout, aux->field_size, 1, arq);
+		printf ("\n");
+	}
+
+}
+
 
 /**
  * salva o register no arquivo

@@ -13,7 +13,9 @@
 
 static const char KEYWORD_INT[] = "int";
 static const char KEYWORD_DOUBLE[] = "double";
-static const char KEYWORD_STRING[] = "char";
+static const char KEYWORD_STRING[] = "char[";
+static const char KEYWORD_FLOAT[] = "float";
+static const char KEYWORD_CHAR[] = "char";
 
 static const char FILENAME[] = "filename";
 static const char KEY_NAME[] = "key-name";
@@ -22,25 +24,25 @@ static const char FIELD_NAME[] = "field-name";
 static const char FIELD_TYPE[] = "field-type";
 
 
-
-
 type_t checkType(char *str) {
 	type_t result;
-	if ( strstr(str, "char[") != NULL ) {
+	if ( strstr(str, KEYWORD_STRING) != NULL ) {
 		result = STRING;
 		printf ("TYPE STRING\n");
-	} else if ( strstr(str, "int") != NULL ) {
+
+	} else if ( strstr(str, KEYWORD_INT) != NULL ) {
 		result = INT;
 		printf ("TYPE INT\n");
-	} else if ( strstr(str, "double") != NULL ) {
+
+	} else if ( strstr(str, KEYWORD_DOUBLE) != NULL ) {
 		result = DOUBLE;
 		printf ("TYPE DOUBLE\n");
 
-	} else if ( strstr(str, "float") != NULL) {
+	} else if ( strstr(str, KEYWORD_FLOAT) != NULL) {
 		result = FLOAT;
 		printf ("TYPE FLOAT\n");
 
-	} else if ( strstr(str, "char") != NULL) {
+	} else if ( strstr(str, KEYWORD_CHAR) != NULL) {
 		result = CHAR;
 		printf ("TYPE CHAR\n");
 

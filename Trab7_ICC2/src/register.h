@@ -8,7 +8,7 @@
 #ifndef REGISTER_H_
 #define REGISTER_H_
 
-#include "key.h"
+#include "index.h"
 #include "metadata.h"
 #include <stdio.h>
 
@@ -20,6 +20,11 @@ typedef struct registerField_t {
 	struct registerField_t *nextField;
 
 } registerField_t;
+
+typedef struct registerOffset_t {
+	value_t	field_value;
+	int	offset;
+} registerOffset_t;
 
 /**
  * Conjunto completo de key e Fields
@@ -33,8 +38,24 @@ typedef struct register_t {
 	int sizeofFields;
 } reg_t;
 
+/**
+ * Imprime na Console
+ */
+void printRegister (FILE* arq, metadata_t metadata, int offset);
+
+/**
+ * Salva no arquivo
+ */
 void saveRegister(reg_t reg, FILE *registerFile);
+
+/**
+ * Le da Console
+ */
 reg_t scanRegister(metadata_t metadata, char *line);
 
+/**
+ * Le todos offsets de acordo com o campo
+ */
+registerOffset_t* fullScanRegister(char *field_name);
 
 #endif /* REGISTER_H_ */

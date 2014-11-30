@@ -11,7 +11,6 @@
 #include "metadata.h"
 #include "register.h"
 
-
 typedef struct registerKey_t {
 	char	*key_name;
 	type_t	key_type;
