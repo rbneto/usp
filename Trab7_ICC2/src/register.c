@@ -14,23 +14,18 @@
 
 void printField(registerField_t *field) {
 	switch(field->field_type) {
-		case (INT):
-				printf("%d\n", (int) &field->field_value); break;
-		case (DOUBLE):
-				printf("%lf\n", (double*) &field->field_value); break;
-		case (CHAR):
-				printf("%c\n", (char) &field->field_value); break;
-		case (FLOAT):
-				printf("%f\n", (float*) &field->field_value); break;
-		case (STRING):
-				printf("%s\n", (char*) &field->field_value); break;
-		case (ERROR):
-				printf ("ERROR");
+		case (INT): printf("%d\n", (int) field->field_value); break;
+		case (DOUBLE): printf("%lf\n", (double*) field->field_value); break;
+		case (CHAR): printf("%c\n", (char) &field->field_value); break;
+		case (FLOAT): printf("%f\n", (float*) field->field_value); break;
+		case (STRING): printf("%s\n", (char*) field->field_value); break;
+		case (ERROR): printf ("ERROR");
  	}
 }
 
 // Preenche o Field com seu respectivo valor
 void scanField(char *token, registerField_t *field) {
+	char *copy;
 	switch(field->field_type) {
 		case (INT): {
 			int number;
@@ -55,7 +50,9 @@ void scanField(char *token, registerField_t *field) {
 				sscanf(token, "%f", (float*) &(field->field_value));
 				printf ("FIELD TYPE: FLOAT\n"); break;
 		case (STRING):
-				sscanf(token, "%s", (char*) &(field->field_value));
+				copy = (char *) malloc (strlen(token));
+				strcpy(copy, token);
+				field->field_value = (value_t *) copy;
 				printf ("FIELD TYPE: STRING\n"); break;
 		case (ERROR):
 				printf ("ERROR");

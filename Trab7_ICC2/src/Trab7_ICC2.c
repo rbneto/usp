@@ -87,7 +87,7 @@ value_t *defineKey(metadata_t metadata) {
 
 /**
  * Insert - Comando do Enunciado
- * 1. L da console a linha contendo cada campo de metadado
+ * 1. Lï¿½ da console a linha contendo cada campo de metadado
  * 2. Inserir no .reg
  * 3. Mudar o cabecalho de cada .idx para 0
  * 4. Acrescentar o cara no final de cada .idx
@@ -195,7 +195,6 @@ int main(void) {
 	read = getline(&line, &len, stdin);
 
 	while ((read = getline(&line, &len, stdin)) != -1) {
-//		printf("Retrieved line of length %zu :\n", read);
 		printf("%s\n", line);
 
 		if (strstr(line, "insert") != NULL)

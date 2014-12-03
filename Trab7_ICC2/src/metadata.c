@@ -10,7 +10,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-
 static const char KEYWORD_INT[] = "int";
 static const char KEYWORD_DOUBLE[] = "double";
 static const char KEYWORD_STRING[] = "char[";
@@ -22,7 +21,6 @@ static const char KEY_NAME[] = "key-name";
 static const char KEY_TYPE[] = "key-type";
 static const char FIELD_NAME[] = "field-name";
 static const char FIELD_TYPE[] = "field-type";
-
 
 type_t checkType(char *str) {
 	type_t result;
@@ -56,13 +54,13 @@ type_t checkType(char *str) {
 
 const char *getTypeScanFormat(type_t type) {
 	switch(type) {
-		case (INT): return "%d";
-		case (DOUBLE): return "%lf";
-		case (CHAR): return "%c";
-		case (STRING): return "%s";
-		case (FLOAT): return "%f";
-		case (ERROR): return NULL;
- 	}
+	case (INT): return "%d";
+	case (DOUBLE): return "%lf";
+	case (CHAR): return "%c";
+	case (STRING): return "%s";
+	case (FLOAT): return "%f";
+	case (ERROR): return NULL;
+	}
 }
 
 int checkSize(char *str) {
@@ -76,23 +74,17 @@ int checkSize(char *str) {
 		{
 			printf ("%s\n",aux);
 			if (sscanf(aux, "%d", &tamanho) != EOF)
-//			printf ("Pegou tamanho: %d\n", tamanho);
-			aux = strtok (NULL, "]");
+				//			printf ("Pegou tamanho: %d\n", tamanho);
+				aux = strtok (NULL, "]");
 		}
 		return (sizeof(char) * tamanho); break;
 	}
-	case (INT):
-			return sizeof(int);
-	case(DOUBLE):
-			return sizeof(double);
-	case(CHAR):
-			return sizeof(char);
-	case(FLOAT):
-			return sizeof(float);
-	case(ERROR):
-			printf ("Nao entendeu o tipo: %s\n", str);
+	case (INT):	return sizeof(int);
+	case(DOUBLE): return sizeof(double);
+	case(CHAR): return sizeof(char);
+	case(FLOAT): return sizeof(float);
+	case(ERROR): printf ("Nao entendeu o tipo: %s\n", str);
 	}
-	printf ("Nao entendeu o tipo: %s\n", str);
 	return 0;
 }
 
@@ -113,17 +105,19 @@ metadataField_t* append_fieldMeta(metadata_t *metadata) {
  * Compoe o metadata, especificando cada um dos Fields
  */
 void readMetaLine(metadata_t *metadata, char *line, FILE *metadataFile) {
-//	printf ("readMetaLine RUNNING\n");
+	//	printf ("readMetaLine RUNNING\n");
 	char keyword[20], value[20];
 	ssize_t read;
 	size_t len = 0;
 	sscanf(line, "%s %s", keyword, value);
 
 	if (strstr(keyword, FILENAME) != NULL) {
-		metadata->registersFileName = value;
+		metadata->metadataKey.key_name = (char *) malloc (strlen(value));
+		strcpy(metadata->registersFileName, value);
 
 	} else if (strstr(keyword, KEY_NAME) != NULL) {
-		metadata->metadataKey.key_name = value;
+		metadata->metadataKey.key_name = (char *) malloc (strlen(value));
+		strcpy(metadata->metadataKey.key_name, value);
 
 		// le outra linha
 		if ( (read = getline(&line, &len, metadataFile)) != -1 ) {
@@ -135,7 +129,8 @@ void readMetaLine(metadata_t *metadata, char *line, FILE *metadataFile) {
 
 	} else if (strstr(keyword, FIELD_NAME) != NULL) {
 		metadataField_t *metadataField = append_fieldMeta(metadata);
-		metadataField->field_name = value;
+		metadataField->field_name = (char *) malloc (strlen(value));
+		strcpy(metadataField->field_name, value);
 		line = (char*) malloc (sizeof(char));
 		// le outra linha
 		if ( (read = getline(&line, &len, metadataFile)) != -1 ) {
@@ -146,19 +141,16 @@ void readMetaLine(metadata_t *metadata, char *line, FILE *metadataFile) {
 
 		} else exit(EXIT_FAILURE);
 	}
-//	printf ("readMetaLine SUCESSFUL\n");
 }
-
 
 // Constroi a struct de Metadados e malloca o no cabeca de Fields
 metadata_t buildMetadata(char *metadataFileName) {
-//	printf ("buildMetadata RUNNING\n");
 	metadata_t metadata;
-		metadataField_t *head = (metadataField_t*) calloc (1, sizeof(metadataField_t));
-		metadata.head_metadataField=head;
-		metadata.last_metadataField=head;
-		metadata.sizeofFields=0;
-		head->nextField=NULL;
+	metadataField_t *head = (metadataField_t*) calloc (1, sizeof(metadataField_t));
+	metadata.head_metadataField=head;
+	metadata.last_metadataField=head;
+	metadata.sizeofFields=0;
+	head->nextField=NULL;
 	FILE *metadataFile;
 	char * line = NULL;
 	ssize_t read;
@@ -172,11 +164,9 @@ metadata_t buildMetadata(char *metadataFileName) {
 	}
 
 	while ((read = getline(&line, &len, metadataFile)) != -1) {
-//		printf("Retrieved line of length %zu :\n", read);
 		printf("%s", line);
 		readMetaLine(&metadata, line, metadataFile); // passar o ponteiro do arquivo
 	}
-//	printf ("buildMetadata SUCESSFUL\n");
 	return metadata;
 }
 
