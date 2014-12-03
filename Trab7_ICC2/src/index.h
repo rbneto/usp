@@ -19,7 +19,4 @@ typedef struct registerKey_t {
 	struct registerKey_t *nextKey;
 } registerKey_t;
 
-
-//void scanKey(metadata_t metadata, reg_t reg, char *line);
-
 #endif /* KEY_H_ */
