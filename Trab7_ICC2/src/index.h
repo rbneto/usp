@@ -12,7 +12,6 @@
 #include "register.h"
 #include <stdio.h>
 
-
 FILE* createIndexFile(char *indexName);
 
 #endif /* KEY_H_ */

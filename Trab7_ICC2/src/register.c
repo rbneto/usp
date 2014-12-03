@@ -12,8 +12,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-
-
 // Acrescenta campos de Key em seus respectivos registros
 void append_registerKey(reg_t *reg, value_t value) {
 
@@ -27,14 +25,13 @@ void append_registerKey(reg_t *reg, value_t value) {
 }
 
 // Baseado no metadata, le a Key de cada registro
-void scanKey(metadata_t metadata, struct reg_t *reg, char *line) {
+void scanKey(metadata_t metadata, reg_t *reg, char *line) {
 	char *token;
-	char *dismiss = (char *) malloc (sizeof(strlen(line)));
 	value_t currentValue;
 
 	// joga fora o comando
 	token = strtok(line, ",");
-	sscanf(token, "%s %d", dismiss, (int*) &currentValue);
+	sscanf(token, "%d", (int*) &currentValue);
 	append_registerKey(reg, currentValue);
 
 }
@@ -47,13 +44,10 @@ reg_t fscanKey(FILE *registerFile, int key) {
 }
 
 // Salva um registro no arquivo
-void saveKey(reg_t reg, FILE *registerFile) {
-	registerField_t *aux;
+void saveKey(reg_t* reg, FILE *registerFile) {
 
-	aux = reg.head_registerField;
-	while (aux->nextField != NULL) {
-		aux = aux->nextField;
-		fwrite (&aux->field_value, 1, aux->field_size, registerFile);
+	if (reg->registerKey != NULL) {
+		fwrite (&reg->registerKey->key_value, 1, reg->registerKey->key_size, registerFile);
 	}
 }
 
@@ -89,18 +83,18 @@ void scanField(char *token, registerField_t *field) {
 		printf ("FIELD TYPE: DOUBLE\n"); break;
 	}
 	case (CHAR):
-						sscanf(token, "%c", (char*) &(field->field_value));
+										sscanf(token, "%c", (char*) &(field->field_value));
 	printf ("FIELD TYPE: CAHR\n"); break;
 	case (FLOAT):
-						sscanf(token, "%f", (float*) &(field->field_value));
+										sscanf(token, "%f", (float*) &(field->field_value));
 	printf ("FIELD TYPE: FLOAT\n"); break;
 	case (STRING):
-						copy = (char *) malloc (strlen(token));
+										copy = (char *) malloc (strlen(token));
 	strcpy(copy, token);
 	field->field_value = (value_t *) copy;
 	printf ("FIELD TYPE: STRING\n"); break;
 	case (ERROR):
-						printf ("ERROR");
+										printf ("ERROR");
 	}
 }
 
@@ -121,13 +115,11 @@ void append_registerField(reg_t *reg, metadataField_t *metadataField, char *toke
 }
 
 // Baseado no metadata, cria a struct de registros e chama funcoes para preenche-la
-reg_t *scanRegister(metadata_t metadata, char *line) {
+void scanRegister(metadata_t metadata, reg_t* reg, char *line) {
 	printf ("scanRegister RUNNING\n");
 	char *token;
 	registerField_t *head;
 	head = (registerField_t*) malloc (sizeof(registerField_t));
-	reg_t *reg;
-	reg = (reg_t*) malloc (sizeof(reg_t));
 	reg->last_registerField = head;
 	reg->head_registerField = head;
 	head->nextField = NULL;
@@ -143,7 +135,6 @@ reg_t *scanRegister(metadata_t metadata, char *line) {
 		append_registerField(reg, currentMetaField, token);
 	}
 	printf ("scanRegister SUCCESSFUL\n");
-	return reg;
 }
 
 // Baseado no metadata, le um registro do arquivo
@@ -171,7 +162,7 @@ void printRegister (FILE* arq, metadata_t metadata, int offset) {
 /**
  * salva o register no arquivo
  */
-void saveRegister(reg_t *reg, FILE *regFile) {
+void saveRegister(reg_t* reg, FILE *regFile) {
 	printf ("saveRegister RUNNING\n");
 	registerField_t *aux;
 

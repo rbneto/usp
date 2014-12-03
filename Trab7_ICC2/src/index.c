@@ -14,13 +14,30 @@
 
 
 FILE* createIndexFile(char *indexName) {
-	FILE* indexFile;
+	FILE* idx;
+	int createValue = 1;
 
-	indexFile = fopen(indexName, "a");
-	return indexFile;
+	idx = fopen (indexName, "w+");
+	if (idx != NULL) {
+		fwrite(&createValue, 4, 1, idx);
+		createValue = 0;
+		fwrite(&createValue, 4, 1, idx);
+
+		return idx;
+	}
+
+	return NULL;
 }
 
 FILE* existIndexFile(char *indexName) {
+	FILE *idx;
+
+	idx = fopen (indexName, "r+");
+	if (idx != NULL) {
+		printfc ("File already exists\n");
+		return idx;
+	}
+
 	return NULL;
 
 }

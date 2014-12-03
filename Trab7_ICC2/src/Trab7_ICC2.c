@@ -94,11 +94,14 @@ value_t *defineKey(metadata_t metadata) {
  */
 void Insert (metadata_t* metadata, char *line) {
 	reg_t *reg;
-	FILE *regFile;
 	reg = (reg_t*) malloc (sizeof(reg_t));
-	regFile = fopen (metadata->registersFileName, "r");
+	FILE *regFile;
+
+	//checar se arquivo ja nao esta aberto
+	regFile = fopen (metadata->registersFileName, "w");
 	scanKey (*metadata, reg, line);
-	reg = scanRegister(*metadata, line);
+	saveKey (reg, regFile);
+	scanRegister(*metadata, reg, line);
 	saveRegister (reg, regFile);
 }
 
@@ -195,9 +198,10 @@ int main(void) {
 
 	read = getline(&line, &len, stdin);
 
+	//Teste de Index
 	createIndexFile("teste.idx");
 
-	while ((read = getline(&line, &len, stdin)) != -1) {
+	while ((read = getline(&line, &len, stdin)) < 3) {
 		printf("%s\n", line);
 
 		if (strstr(line, "insert") != NULL)
