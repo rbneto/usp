@@ -13,25 +13,26 @@
 #include <string.h>
 
 // Acrescenta campos de Key em seus respectivos registros
-void append_registerKey(reg_t *reg, value_t value) {
+void append_registerKey(reg_t *reg, value_t *value) {
 
 	registerKey_t *newKey;
 
 	newKey = (registerKey_t*) malloc (sizeof(registerKey_t)*1);
 
 	reg->registerKey = newKey;
-	newKey->key_value = &value;
+	newKey->key_value = value;
 
 }
 
 // Baseado no metadata, le a Key de cada registro
 void scanKey(metadata_t metadata, reg_t *reg, char *line) {
 	char *token;
-	value_t currentValue;
+	char *dismiss = (char*) malloc (sizeof(strlen(line)));
+	value_t *currentValue = (value_t*) malloc (sizeof(value_t));
 
 	// joga fora o comando
 	token = strtok(line, ",");
-	sscanf(token, "%d", (int*) &currentValue);
+	sscanf(token, "%s %d", dismiss, (int*) currentValue);
 	append_registerKey(reg, currentValue);
 
 }
@@ -53,10 +54,10 @@ void saveKey(reg_t* reg, FILE *registerFile) {
 
 void printField(registerField_t *field) {
 	switch(field->field_type) {
-	case (INT): printf("%d\n", (int) field->field_value); break;
-	case (DOUBLE): printf("%lf\n", (double*) field->field_value); break;
+	case (INT): printf("%d\n", *((int *) field->field_value)); break;
+	case (DOUBLE): printf("%lf\n", (double *) field->field_value); break;
 	case (CHAR): printf("%c\n", (char) &field->field_value); break;
-	case (FLOAT): printf("%f\n", (float*) field->field_value); break;
+	case (FLOAT): printf("%f\n", (float *) field->field_value); break;
 	case (STRING): printf("%s\n", (char*) field->field_value); break;
 	case (ERROR): printf ("ERROR");
 	}

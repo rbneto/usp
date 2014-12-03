@@ -13,7 +13,6 @@
 #include <stdio.h>
 
 typedef struct registerKey_t {
-	char	*key_name;
 	type_t	key_type;
 	int		key_size;
 	value_t *key_value;
@@ -21,7 +20,6 @@ typedef struct registerKey_t {
 } registerKey_t;
 
 typedef struct registerField_t {
-	char	*field_name;
 	type_t	field_type;
 	int		field_size;
 	value_t *field_value;

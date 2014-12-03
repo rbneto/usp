@@ -34,7 +34,7 @@ FILE* existIndexFile(char *indexName) {
 
 	idx = fopen (indexName, "r+");
 	if (idx != NULL) {
-		printfc ("File already exists\n");
+		printf ("File already exists\n");
 		return idx;
 	}
 

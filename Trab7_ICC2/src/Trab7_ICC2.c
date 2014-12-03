@@ -201,7 +201,7 @@ int main(void) {
 	//Teste de Index
 	createIndexFile("teste.idx");
 
-	while ((read = getline(&line, &len, stdin)) < 3) {
+	while ((read = getline(&line, &len, stdin)) != -1) {
 		printf("%s\n", line);
 
 		if (strstr(line, "insert") != NULL)
