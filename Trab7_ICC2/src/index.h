@@ -10,16 +10,9 @@
 
 #include "metadata.h"
 #include "register.h"
-
-typedef struct registerKey_t {
-	char	*key_name;
-	type_t	key_type;
-	int		key_size;
-	value_t *key_value;
-	struct registerKey_t *nextKey;
-} registerKey_t;
+#include <stdio.h>
 
 
-//void scanKey(metadata_t metadata, reg_t reg, char *line);
+FILE* createIndexFile(char *indexName);
 
 #endif /* KEY_H_ */

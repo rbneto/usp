@@ -12,6 +12,14 @@
 #include "metadata.h"
 #include <stdio.h>
 
+typedef struct registerKey_t {
+	char	*key_name;
+	type_t	key_type;
+	int		key_size;
+	value_t *key_value;
+	struct registerKey_t *nextKey;
+} registerKey_t;
+
 typedef struct registerField_t {
 	char	*field_name;
 	type_t	field_type;
@@ -30,7 +38,7 @@ typedef struct registerOffset_t {
  * Conjunto completo de key e Fields
  * Metadata -> definicao: dado que descreve um dado
  */
-typedef struct register_t {
+typedef struct reg_t {
 	registerField_t *head_registerField;
 	registerField_t *last_registerField;
 	registerKey_t *registerKey;
@@ -46,12 +54,12 @@ void printRegister (FILE* arq, metadata_t metadata, int offset);
 /**
  * Salva no arquivo
  */
-void saveRegister(reg_t reg, FILE *registerFile);
+void saveRegister(reg_t *reg, FILE *registerFile);
 
 /**
  * Le da Console
  */
-reg_t scanRegister(metadata_t metadata, char *line);
+reg_t *scanRegister(metadata_t metadata, char *line);
 
 /**
  * Le todos offsets de acordo com o campo

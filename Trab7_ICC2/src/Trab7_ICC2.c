@@ -93,10 +93,11 @@ value_t *defineKey(metadata_t metadata) {
  * 4. Acrescentar o cara no final de cada .idx
  */
 void Insert (metadata_t* metadata, char *line) {
-	reg_t reg;
+	reg_t *reg;
 	FILE *regFile;
+	reg = (reg_t*) malloc (sizeof(reg_t));
 	regFile = fopen (metadata->registersFileName, "r");
-//	scanKey (*metadata, reg, line);
+	scanKey (*metadata, reg, line);
 	reg = scanRegister(*metadata, line);
 	saveRegister (reg, regFile);
 }
@@ -193,6 +194,8 @@ int main(void) {
 	printf("sizeOfKey: %d\n", metadata.metadataKey.sizeOfKey);
 
 	read = getline(&line, &len, stdin);
+
+	createIndexFile("teste.idx");
 
 	while ((read = getline(&line, &len, stdin)) != -1) {
 		printf("%s\n", line);
