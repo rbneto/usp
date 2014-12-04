@@ -53,7 +53,18 @@ registerOffset_t* sortIndex(registerOffset_t* offsets) {
  * Salva estrutura no .idx
  */
 int saveIndex(char *indexName, registerOffset_t *offsets) {
-	return NULL;
+	FILE *idx;
+
+	if ((idx = existIndexFile(indexName)) == NULL) {
+		idx = createIndexFile(indexName);
+	}
+	if (idx != NULL) {
+		fwrite(&offsets->field_value, offsets->field_type, /*NUM OF OFFSETS*/ 1, idx);
+		//TODO
+		fclose(idx);
+		return 1;
+	}
+	return 0;
 }
 
 /**

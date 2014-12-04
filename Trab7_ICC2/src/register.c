@@ -21,6 +21,7 @@ void append_registerKey(reg_t *reg, value_t *value) {
 
 	reg->registerKey = newKey;
 	newKey->key_value = value;
+	printf ("Key value: %d\n", (int)value);
 
 }
 
@@ -127,7 +128,7 @@ void scanRegister(metadata_t metadata, reg_t* reg, char *line) {
 	metadataField_t *currentMetaField;
 
 	// joga fora o comando
-	token = strtok(line, ",");
+//	token = strtok(line, ",");
 
 	currentMetaField = metadata.head_metadataField;
 	while (((token = strtok (NULL, ",")) != NULL) && (currentMetaField->nextField != NULL)) {		//espaco nao ta funcionando, tratar aspas e insert 4

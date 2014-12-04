@@ -29,6 +29,7 @@ typedef struct registerField_t {
 
 typedef struct registerOffset_t {
 	value_t	field_value;
+	type_t field_type;
 	int	offset;
 } registerOffset_t;
 
