@@ -42,7 +42,7 @@ typedef struct metadata_t {
 	metadataKey_t metadataKey;
 	metadataField_t *head_metadataField;
 	metadataField_t *last_metadataField;
-	int sizeofFields;
+	int sizeOfRegister;
 } metadata_t;
 
 /**

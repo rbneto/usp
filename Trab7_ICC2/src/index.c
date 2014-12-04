@@ -19,10 +19,11 @@ FILE* createIndexFile(char *indexName) {
 
 	idx = fopen (indexName, "w+");
 	if (idx != NULL) {
+		fseek(idx, 0, SEEK_SET);
 		fwrite(&createValue, 4, 1, idx);
 		createValue = 0;
 		fwrite(&createValue, 4, 1, idx);
-
+		fflush(idx);
 		return idx;
 	}
 
@@ -70,7 +71,14 @@ int saveIndex(char *indexName, registerOffset_t *offsets) {
 /**
  * Le de .idex e retorna estrutura ordenada
  */
-registerOffset_t* readIndex(char *indexName) {
+registerOffset_t* readIndex(char *indexName, type_t type) {
+	FILE *idx;
+
+	idx = existIndexFile(indexName);
+	if (idx != NULL) {
+		//read to stdin or registerOffset vector
+	}
+
 	return NULL;
 }
 

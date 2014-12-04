@@ -124,6 +124,8 @@ void readMetaLine(metadata_t *metadata, char *line, FILE *metadataFile) {
 			sscanf(line, "%s %s", keyword, value);
 			metadata->metadataKey.key_type = checkType(value);
 			metadata->metadataKey.sizeOfKey = checkSize(value);
+			metadata->sizeOfRegister += metadata->metadataKey.sizeOfKey;
+			printf ("KEY SIZE: %d\n", metadata->metadataKey.sizeOfKey);
 
 		} else exit(EXIT_FAILURE);
 
@@ -137,7 +139,8 @@ void readMetaLine(metadata_t *metadata, char *line, FILE *metadataFile) {
 			sscanf(line, "%s %s", keyword, value);
 			metadataField->field_type = checkType(value);
 			metadataField->field_size = checkSize(value);
-			metadata->sizeofFields += metadataField->field_size;
+			printf ("KEY SIZE: %d\n", metadataField->field_size);
+			metadata->sizeOfRegister += metadataField->field_size;
 
 		} else exit(EXIT_FAILURE);
 	}
@@ -149,7 +152,7 @@ metadata_t buildMetadata(char *metadataFileName) {
 	metadataField_t *head = (metadataField_t*) calloc (1, sizeof(metadataField_t));
 	metadata.head_metadataField=head;
 	metadata.last_metadataField=head;
-	metadata.sizeofFields=0;
+	metadata.sizeOfRegister=0;
 	head->nextField=NULL;
 	FILE *metadataFile;
 	char * line = NULL;

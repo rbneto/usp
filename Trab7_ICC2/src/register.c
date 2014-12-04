@@ -66,12 +66,10 @@ void scanField(char *token, registerField_t *field) {
 		}
 		//				sscanf(token, "%d", (int*) &(field->field_value));
 		field->field_value = (value_t*) &number;
-		field->field_size = sizeof(int);
 		printf ("FIELD TYPE: INT\nnumber:%d\n", number); break;
 	}
 	case (DOUBLE): {
 		sscanf(token, "%lf", (double*) &(field->field_value));
-		field->field_size = sizeof(double);
 		printf ("FIELD TYPE: DOUBLE\n"); break;
 	}
 	case (CHAR):
@@ -83,10 +81,9 @@ void scanField(char *token, registerField_t *field) {
 		printf ("FIELD TYPE: FLOAT\n");
 		break;
 	case (STRING):
-		copy = (char *) malloc (strlen(token));
+		copy = (char *) malloc (field->field_size);
 		strcpy(copy, token);
 		field->field_value = (value_t *) copy;
-		field->field_size = strlen(token);
 		printf ("FIELD TYPE: STRING\n");
 		break;
 	case (ERROR):
@@ -105,6 +102,7 @@ void append_registerField(reg_t *reg, metadataField_t *metadataField, char *toke
 	newField->nextField = NULL;
 	reg->last_registerField = newField;
 	newField->field_type = metadataField->field_type;
+	newField->field_size = metadataField->field_size;
 	scanField(token, newField);
 	printField (newField);
 
@@ -140,15 +138,21 @@ reg_t fscanRegister(FILE *registerFile, int position) {
 
 void printRegister (FILE* arq, metadata_t metadata, int offset) {
 	metadataField_t *aux;
+	void *buffer;
+	int check;
 
 	fseek (arq, offset, SEEK_SET);
-	fread (stdout, metadata.metadataKey.sizeOfKey, 1, arq);
+	buffer = (char*) malloc (sizeof(char)*metadata.metadataKey.sizeOfKey);
+	check = fread (buffer, metadata.metadataKey.sizeOfKey, 1, arq);
+	check = fwrite(buffer, metadata.metadataKey.sizeOfKey, 1, stdout);
 	printf ("\n");
 
 	aux = metadata.head_metadataField;
 	while (aux->nextField != NULL) {
 		aux = aux->nextField;
-		fread (stdout, aux->field_size, 1, arq);
+		buffer = (char*) malloc (sizeof(char)*aux->field_size);
+		check = fread (buffer, aux->field_size, 1, arq);
+		check = fwrite(buffer, aux->field_size, 1, stdout);
 		printf ("\n");
 	}
 
@@ -167,6 +171,7 @@ void saveRegister(reg_t* reg, FILE *regFile) {
 		aux = aux->nextField;
 		fwrite (&aux->field_value, 1, aux->field_size, regFile);
 	}
+	fflush(regFile);
 	printf ("scanRegister SUCCESSFUL\n");
 }
 

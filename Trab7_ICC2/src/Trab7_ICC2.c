@@ -100,11 +100,13 @@ void Insert (metadata_t* metadata, char *line) {
 	strcpy(cpyline, line);
 
 	//checar se arquivo ja nao esta aberto
-	regFile = fopen (metadata->registersFileName, "a");
+	regFile = fopen (metadata->registersFileName, "w+");
 	scanKey (*metadata, reg, cpyline);
 	saveKey (reg, regFile);
 	scanRegister(*metadata, reg, line);
 	saveRegister (reg, regFile);
+
+	printRegister(regFile, *metadata, 0);
 }
 
 /**
@@ -127,7 +129,7 @@ FILE* IndexField(metadata_t metadata, char *line, char *field) {
 	//tera que imprimir ordenado! TODO
 	//http://support.microsoft.com/kb/73853/en-us
 	fwrite (metadata.metadataKey.key_name, metadata.metadataKey.sizeOfKey, 1, idx);	//print key
-	fwrite (&metadata.sizeofFields, sizeof(int), 1, idx);							//print offset
+	fwrite (&metadata.sizeOfRegister, sizeof(int), 1, idx);							//print offset
 
 	fclose (idx);
 
@@ -194,7 +196,7 @@ int main(void) {
 	printf ("%s\n", regName);
 
 	metadata_t metadata = buildMetadata (regName);
-	printf("SizeofFields: %d\n", metadata.sizeofFields);
+	printf("SizeofFields: %d\n", metadata.sizeOfRegister);
 	printf("key_name: %s\n", metadata.metadataKey.key_name);
 	printf("sizeOfKey: %d\n", metadata.metadataKey.sizeOfKey);
 
@@ -204,6 +206,8 @@ int main(void) {
 	createIndexFile("teste.idx");
 
 	while ((read = getline(&line, &len, stdin)) != -1) {
+		printf("%s\n", line);
+		strtok(line, "\n");
 		printf("%s\n", line);
 
 		if (strstr(line, "insert") != NULL)
