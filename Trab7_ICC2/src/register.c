@@ -12,19 +12,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-// Acrescenta campos de Key em seus respectivos registros
-void append_registerKey(reg_t *reg, value_t *value) {
-
-	registerKey_t *newKey;
-
-	newKey = (registerKey_t*) malloc (sizeof(registerKey_t)*1);
-
-	reg->registerKey = newKey;
-	newKey->key_value = value;
-	printf ("Key value: %d\n", (int)value);
-
-}
-
 // Baseado no metadata, le a Key de cada registro
 void scanKey(metadata_t metadata, reg_t *reg, char *line) {
 	char *token;
@@ -34,8 +21,9 @@ void scanKey(metadata_t metadata, reg_t *reg, char *line) {
 	// joga fora o comando
 	token = strtok(line, ",");
 	sscanf(token, "%s %d", dismiss, (int*) currentValue);
-	append_registerKey(reg, currentValue);
-
+	reg->registerKey = (registerKey_t*) malloc (sizeof(registerKey_t)*1);
+	reg->registerKey->key_value = currentValue;
+	reg->registerKey->key_size = sizeof(int);
 }
 
 // Le um registro do arquivo com base em sua Key
@@ -78,25 +66,31 @@ void scanField(char *token, registerField_t *field) {
 		}
 		//				sscanf(token, "%d", (int*) &(field->field_value));
 		field->field_value = (value_t*) &number;
+		field->field_size = sizeof(int);
 		printf ("FIELD TYPE: INT\nnumber:%d\n", number); break;
 	}
 	case (DOUBLE): {
 		sscanf(token, "%lf", (double*) &(field->field_value));
+		field->field_size = sizeof(double);
 		printf ("FIELD TYPE: DOUBLE\n"); break;
 	}
 	case (CHAR):
-										sscanf(token, "%c", (char*) &(field->field_value));
-	printf ("FIELD TYPE: CAHR\n"); break;
+		sscanf(token, "%c", (char*) &(field->field_value));
+		printf ("FIELD TYPE: CAHR\n");
+		break;
 	case (FLOAT):
-										sscanf(token, "%f", (float*) &(field->field_value));
-	printf ("FIELD TYPE: FLOAT\n"); break;
+		sscanf(token, "%f", (float*) &(field->field_value));
+		printf ("FIELD TYPE: FLOAT\n");
+		break;
 	case (STRING):
-										copy = (char *) malloc (strlen(token));
-	strcpy(copy, token);
-	field->field_value = (value_t *) copy;
-	printf ("FIELD TYPE: STRING\n"); break;
+		copy = (char *) malloc (strlen(token));
+		strcpy(copy, token);
+		field->field_value = (value_t *) copy;
+		field->field_size = strlen(token);
+		printf ("FIELD TYPE: STRING\n");
+		break;
 	case (ERROR):
-										printf ("ERROR");
+		printf ("ERROR");
 	}
 }
 
