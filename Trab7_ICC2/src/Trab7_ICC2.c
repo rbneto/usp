@@ -96,16 +96,17 @@ void Insert (metadata_t* metadata, char *line) {
 	reg_t *reg;
 	reg = (reg_t*) malloc (sizeof(reg_t));
 	FILE *regFile;
-	char *cpyline = (char*) malloc (sizeof(strlen(line)));
-	strcpy(cpyline, line);
+	char *saveptr;
 
 	//checar se arquivo ja nao esta aberto
 	regFile = fopen (metadata->registersFileName, "w+");
-	scanKey (*metadata, reg, cpyline);
+
+	scanKey (*metadata, reg, line, &saveptr);
 	saveKey (reg, regFile);
-	scanRegister(*metadata, reg, line);
+	scanRegister(*metadata, reg, line, &saveptr);
 	saveRegister (reg, regFile);
 
+	fflush(regFile);
 	printRegister(regFile, *metadata, 0);
 }
 
@@ -188,7 +189,7 @@ FILE* regFile, metadataFile, indexFiles;
 
 int main(void) {
 	char regName[20];
-	char *line = NULL;
+	char *line;
 	size_t len = 0;
 	ssize_t read;
 

@@ -45,14 +45,14 @@ typedef struct reg_t {
 	int sizeofFields;
 } reg_t;
 
-void scanKey(metadata_t metadata, reg_t *reg, char *line);
+void scanKey(metadata_t metadata, reg_t *reg, char *line, char **saveptr);
 
 void saveKey(reg_t* reg, FILE *registerFile);
 
 /**
  * Imprime na Console
  */
-void printRegister (FILE* arq, metadata_t metadata, int offset);
+void printRegister (FILE *registerFile, metadata_t metadata, int offset);
 
 /**
  * Salva no arquivo
@@ -62,7 +62,7 @@ void saveRegister(reg_t* reg, FILE *registerFile);
 /**
  * Le da Console
  */
-void scanRegister(metadata_t metadata, reg_t* reg, char *line);
+void scanRegister(metadata_t metadata, reg_t* reg, char *line, char **saveptr);
 
 /**
  * Le todos offsets de acordo com o campo

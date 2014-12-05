@@ -13,17 +13,27 @@
 #include <string.h>
 
 // Baseado no metadata, le a Key de cada registro
-void scanKey(metadata_t metadata, reg_t *reg, char *line) {
+void scanKey(metadata_t metadata, reg_t *reg, char *line, char **saveptr) {
 	char *token;
-	char *dismiss = (char*) malloc (sizeof(strlen(line)));
-	value_t *currentValue = (value_t*) malloc (sizeof(value_t));
+	char *dismiss = (char*) malloc (strlen(line));
+	char *valueStr = (char *) malloc (strlen(line));
 
 	// joga fora o comando
-	token = strtok(line, ",");
-	sscanf(token, "%s %d", dismiss, (int*) currentValue);
-	reg->registerKey = (registerKey_t*) malloc (sizeof(registerKey_t)*1);
-	reg->registerKey->key_value = currentValue;
-	reg->registerKey->key_size = sizeof(int);
+	token = strtok_r(line, ",", saveptr);
+	sscanf(token, "%s %s", dismiss, valueStr);
+
+	reg->registerKey = (registerKey_t*) malloc (sizeof(registerKey_t));
+	reg->registerKey->key_value = (value_t*) malloc (sizeof(value_t));
+
+	switch(reg->registerKey->key_type) {
+	case (INT): sscanf(valueStr, "%d", &reg->registerKey->key_value->i); reg->registerKey->key_size = sizeof(int); break;
+	case (DOUBLE): sscanf(valueStr, "%lf", &reg->registerKey->key_value->d); break;
+	case (CHAR): sscanf(valueStr, "%c", &reg->registerKey->key_value->c); break;
+	case (FLOAT): sscanf(valueStr, "%f", &reg->registerKey->key_value->f); break;
+	case (STRING): reg->registerKey->key_value->s = (char*) malloc (strlen(valueStr)); strcpy(reg->registerKey->key_value->s, valueStr); break;
+	case (ERROR): printf ("ERROR");
+	}
+
 }
 
 // Le um registro do arquivo com base em sua Key
@@ -37,17 +47,36 @@ reg_t fscanKey(FILE *registerFile, int key) {
 void saveKey(reg_t* reg, FILE *registerFile) {
 
 	if (reg->registerKey != NULL) {
-		fwrite (&reg->registerKey->key_value, 1, reg->registerKey->key_size, registerFile);
+		switch (reg->registerKey->key_type) {
+		case(INT): fwrite (&reg->registerKey->key_value->i, reg->registerKey->key_size, 1, registerFile); break;
+		case(DOUBLE): fwrite (&reg->registerKey->key_value->d, reg->registerKey->key_size, 1, registerFile); break;
+		case(CHAR): fwrite (&reg->registerKey->key_value->c, reg->registerKey->key_size, 1, registerFile); break;
+		case(FLOAT): fwrite (&reg->registerKey->key_value->f, reg->registerKey->key_size, 1, registerFile); break;
+		case(STRING): fwrite (reg->registerKey->key_value->s, reg->registerKey->key_size, 1, registerFile); break;
+		case(ERROR): break;
+		}
 	}
 }
 
+void printKey(registerKey_t *key) {
+	switch(key->key_type) {
+	case (INT): printf("%d", *((int *) key->key_value)); break;
+	case (DOUBLE): printf("%lf", *((double *) key->key_value)); break;
+	case (CHAR): printf("%c", *((char *) key->key_value)); break;
+	case (FLOAT): printf("%f", *((float *) key->key_value)); break;
+	case (STRING): printf("%s", (char*) key->key_value); break;
+	case (ERROR): printf ("ERROR");
+	}
+}
+
+
 void printField(registerField_t *field) {
 	switch(field->field_type) {
-	case (INT): printf("%d\n", *((int *) field->field_value)); break;
-	case (DOUBLE): printf("%lf\n", (double *) field->field_value); break;
-	case (CHAR): printf("%c\n", (char) &field->field_value); break;
-	case (FLOAT): printf("%f\n", (float *) field->field_value); break;
-	case (STRING): printf("%s\n", (char*) field->field_value); break;
+	case (INT): printf(" %d", field->field_value->i); break;
+	case (DOUBLE): printf(" %.2f", field->field_value->d); break;
+	case (CHAR): printf(" %c", field->field_value->c); break;
+	case (FLOAT): printf(" %.2f", field->field_value->f); break;
+	case (STRING): printf("%s", (char*) field->field_value); break;
 	case (ERROR): printf ("ERROR");
 	}
 }
@@ -56,38 +85,12 @@ void printField(registerField_t *field) {
 void scanField(char *token, registerField_t *field) {
 	char *copy;
 	switch(field->field_type) {
-	case (INT): {
-		int number;
-		while (*token) {
-			if (sscanf(token, "%d", &number) == 1) {
-				break;
-			}
-			token++;
-		}
-		//				sscanf(token, "%d", (int*) &(field->field_value));
-		field->field_value = (value_t*) &number;
-		printf ("FIELD TYPE: INT\nnumber:%d\n", number); break;
-	}
-	case (DOUBLE): {
-		sscanf(token, "%lf", (double*) &(field->field_value));
-		printf ("FIELD TYPE: DOUBLE\n"); break;
-	}
-	case (CHAR):
-		sscanf(token, "%c", (char*) &(field->field_value));
-		printf ("FIELD TYPE: CAHR\n");
-		break;
-	case (FLOAT):
-		sscanf(token, "%f", (float*) &(field->field_value));
-		printf ("FIELD TYPE: FLOAT\n");
-		break;
-	case (STRING):
-		copy = (char *) malloc (field->field_size);
-		strcpy(copy, token);
-		field->field_value = (value_t *) copy;
-		printf ("FIELD TYPE: STRING\n");
-		break;
-	case (ERROR):
-		printf ("ERROR");
+	case (INT): sscanf(token, "%d", &field->field_value->i); break;
+	case (DOUBLE): sscanf(token, "%lf", &field->field_value->d); break;
+	case (CHAR): sscanf(token, "%c", &field->field_value->c); break;
+	case (FLOAT): sscanf(token, "%f", &field->field_value->f); break;
+	case (STRING): field->field_value->s = (char*) malloc (strlen(token)); strcpy(field->field_value->s, token); break;
+	case (ERROR): printf ("ERROR");
 	}
 }
 
@@ -103,15 +106,16 @@ void append_registerField(reg_t *reg, metadataField_t *metadataField, char *toke
 	reg->last_registerField = newField;
 	newField->field_type = metadataField->field_type;
 	newField->field_size = metadataField->field_size;
+	newField->field_value = (value_t*) malloc (sizeof(value_t));
 	scanField(token, newField);
 	printField (newField);
 
 }
 
 // Baseado no metadata, cria a struct de registros e chama funcoes para preenche-la
-void scanRegister(metadata_t metadata, reg_t* reg, char *line) {
+void scanRegister(metadata_t metadata, reg_t* reg, char *line, char **saveptr) {
 	printf ("scanRegister RUNNING\n");
-	char *token;
+	char *token = malloc(sizeof(strlen(line)));
 	registerField_t *head;
 	head = (registerField_t*) malloc (sizeof(registerField_t));
 	reg->last_registerField = head;
@@ -119,11 +123,8 @@ void scanRegister(metadata_t metadata, reg_t* reg, char *line) {
 	head->nextField = NULL;
 	metadataField_t *currentMetaField;
 
-	// joga fora o comando
-//	token = strtok(line, ",");
-
 	currentMetaField = metadata.head_metadataField;
-	while (((token = strtok (NULL, ",")) != NULL) && (currentMetaField->nextField != NULL)) {		//espaco nao ta funcionando, tratar aspas e insert 4
+	while (((token = strtok_r (NULL, ",", saveptr)) != NULL) && (currentMetaField->nextField != NULL)) {		//espaco nao ta funcionando, tratar aspas e insert 4
 		printf ("TOKEN:%s\n", token);
 		currentMetaField = currentMetaField->nextField;
 		append_registerField(reg, currentMetaField, token);
@@ -132,30 +133,31 @@ void scanRegister(metadata_t metadata, reg_t* reg, char *line) {
 }
 
 // Baseado no metadata, le um registro do arquivo
-reg_t fscanRegister(FILE *registerFile, int position) {
-	//TODO
+reg_t fscanRegister(FILE *registerFile, metadata_t metadata, int position) {
 }
 
-void printRegister (FILE* arq, metadata_t metadata, int offset) {
+void printRegister (FILE *registerFile, metadata_t metadata, int offset) {
 	metadataField_t *aux;
-	void *buffer;
-	int check;
+	registerKey_t *key = (registerKey_t *) malloc (sizeof(registerKey_t));
+	registerField_t	*field = (registerField_t *) malloc (sizeof(registerField_t));
+	int count = 0;
+	void *buffer = malloc (metadata.sizeOfRegister);
 
-	fseek (arq, offset, SEEK_SET);
-	buffer = (char*) malloc (sizeof(char)*metadata.metadataKey.sizeOfKey);
-	check = fread (buffer, metadata.metadataKey.sizeOfKey, 1, arq);
-	check = fwrite(buffer, metadata.metadataKey.sizeOfKey, 1, stdout);
-	printf ("\n");
+	key->key_type = metadata.metadataKey.key_type;
+	key->key_value = malloc (sizeof(metadata.metadataKey.sizeOfKey));
+	count = fseek(registerFile, offset, SEEK_SET);
+	count = fread(key->key_value, metadata.metadataKey.sizeOfKey, 1, registerFile);
+	printKey(key);
 
 	aux = metadata.head_metadataField;
 	while (aux->nextField != NULL) {
 		aux = aux->nextField;
-		buffer = (char*) malloc (sizeof(char)*aux->field_size);
-		check = fread (buffer, aux->field_size, 1, arq);
-		check = fwrite(buffer, aux->field_size, 1, stdout);
-		printf ("\n");
+		field->field_type = aux->field_type;
+		field->field_value = malloc (sizeof(aux->field_size));
+		fread(field->field_value, aux->field_size, 1, registerFile);
+		printField(field);
 	}
-
+	printf("\n");
 }
 
 
@@ -169,7 +171,14 @@ void saveRegister(reg_t* reg, FILE *regFile) {
 	aux = reg->head_registerField;
 	while (aux->nextField != NULL) {
 		aux = aux->nextField;
-		fwrite (&aux->field_value, 1, aux->field_size, regFile);
+		switch (aux->field_type) {
+		case(INT): fwrite (&aux->field_value->i, aux->field_size, 1, regFile); break;
+		case(DOUBLE): fwrite (&aux->field_value->d, aux->field_size, 1, regFile); break;
+		case(CHAR): fwrite (&aux->field_value->c, aux->field_size, 1, regFile); break;
+		case(FLOAT): fwrite (&aux->field_value->f, aux->field_size, 1, regFile); break;
+		case(STRING): fwrite (aux->field_value->s, aux->field_size, 1, regFile); break;
+		case(ERROR): break;
+		}
 	}
 	fflush(regFile);
 	printf ("scanRegister SUCCESSFUL\n");
